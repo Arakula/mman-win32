@@ -60,7 +60,8 @@ void* mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off)
     HANDLE fm, h;
     
     void * map = MAP_FAILED;
-    
+	DWORD dwErr;
+	
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4293)
@@ -70,8 +71,8 @@ void* mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off)
                     (DWORD)off : (DWORD)(off & 0xFFFFFFFFL);
     const DWORD dwFileOffsetHigh = (sizeof(off_t) <= sizeof(DWORD)) ?
                     (DWORD)0 : (DWORD)((off >> 32) & 0xFFFFFFFFL);
-    const DWORD protect = __map_mmap_prot_page(prot);
-    const DWORD desiredAccess = __map_mmap_prot_file(prot);
+    DWORD protect = __map_mmap_prot_page(prot);
+    DWORD desiredAccess = __map_mmap_prot_file(prot);
 
     const off_t maxSize = off + (off_t)len;
 
@@ -109,7 +110,27 @@ void* mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off)
 
     if (fm == NULL)
     {
-        errno = __map_mman_error(GetLastError(), EPERM);
+		dwErr = GetLastError();
+		if (dwErr == ERROR_ACCESS_DENIED)
+		{
+			// assume the file has been opened as read-only, so resort to
+			// copy-on-write methods instead.
+			if (protect & PAGE_EXECUTE_READWRITE)
+				protect = (protect & ~PAGE_EXECUTE_READWRITE) | PAGE_EXECUTE_WRITECOPY;
+			else if (protect & PAGE_READWRITE)
+				protect = (protect & ~PAGE_READWRITE) | PAGE_WRITECOPY;
+			//desiredAccess = FILE_MAP_READ | FILE_MAP_COPY;
+			desiredAccess = FILE_MAP_COPY;
+			// try again ...
+			fm = CreateFileMapping(h, NULL, protect, dwMaxSizeHigh, dwMaxSizeLow, NULL);
+			if (fm == NULL)
+				dwErr = GetLastError();
+		}
+    }
+
+    if (fm == NULL)
+    {
+        errno = __map_mman_error(dwErr, EPERM);
         return MAP_FAILED;
     }
   
