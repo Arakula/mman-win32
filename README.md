@@ -3,7 +3,7 @@ A light implementation of the mmap functions for MinGW.
 
 The mmap-win32 library implements a wrapper for mmap functions around the memory mapping Windows API.
 
-Modified copy of mman-win32 from [Google Code Archive](https://code.google.com/archive/p/mman-win32)
+Modified copy of mman-win32 from [Google Code Archive](https://code.google.com/archive/p/mman-win32)  
 Original can also be found [here, on Github](https://github.com/klauspost/mman-win3).
 
 This project was adapted from the above original to address issues found when
