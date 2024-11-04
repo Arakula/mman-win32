@@ -7,7 +7,7 @@ Modified copy of mman-win32 from [Google Code Archive](https://code.google.com/a
 Original can also be found [here, on Github](https://github.com/klauspost/mman-win3).
 
 This project was adapted from the above original to address issues found when
-trying to use it in mingw32 / mingw64 to add mmap capabilities to the [umac project](https://github.com/evansm7/umac). In umac, the following code block is used:
+trying to use it in mingw32 / mingw64 to add mmap capabilities to the [Micro Mac (umac) project](https://github.com/evansm7/umac). In umac, the following code block is used:
 
 ```C
         ofd = open(rom_filename, O_RDONLY);
