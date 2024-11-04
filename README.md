@@ -22,4 +22,11 @@ i.e., open a file in read-only mode, then create a memory map for that which can
 
 This fails in the original mman-win32 version, as Windows doesn't allow creating a read/write mapping for a file opened in read-only mode. I've added a little fix for that - might be a bit too generic, but works for my purposes.
 
+## Installation
 
+The easiest way, in MSYS2 (mingw32, mingw64 etc), would be to execute the usual sequence  
+  `./configure --prefix=$MSYSTEM_PREFIX --libdir=$MSYSTEM_PREFIX/lib --incdir=$MSYSTEM_PREFIX/include/sys`  
+  `make`  
+  `make install`  
+which installs the lib and header in the directories where an unmodified project would search for them.  
+Plus, add `-lmman` to the linker command for any project that uses it.
